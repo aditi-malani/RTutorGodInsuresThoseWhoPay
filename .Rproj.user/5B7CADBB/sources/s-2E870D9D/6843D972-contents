@@ -1,9 +1,21 @@
+#< ignore
 
-```{r 'check_ps', include=FALSE}
+```{r setup}
+library(RTutor)
+# Adapt the working directory below and then run setup chunk in RStudio.
+setwd("C:/Users/Aditi ^_^/Desktop/Thesis/ProblemSet")
+ps.name = "God Insures Those Who Pay"; sol.file = paste0(ps.name,"_sol.Rmd")
+libs = c("AER","stargazer","gridExtra","webshot","plotly","skimr","ggplot2","dplyr") # character vector of all packages you load in the problem set
 
-user.name = 'ENTER A USER NAME HERE'
+#name.rmd.chunks(sol.file)
+create.ps(sol.file=sol.file, ps.name=ps.name, libs=libs, addons = "quiz")
+          
+# The following line directly shows the problem set 
+# in the browser
+show.ps(ps.name,launch.browser=TRUE,
+  auto.save.code=FALSE,sample.solution=FALSE)
 ```
-
+#>
 
 # God Insures Those Who Pay?
 
@@ -102,10 +114,24 @@ Coming back to the paper, the participants of the experiment played 10 games and
 
 The pairs of the recipients for the 10 games are listed in the table below:
 
-```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("preknit_nZaAGMKyFKHf")
+#< preknit "Dictator Games"
+```{r echo=FALSE}
+dictator_games <- data.frame(A = c(rep("Self",4), 
+                                   rep("Church (anonymous)",3),
+                                   rep("Street Children",2), 
+                                   rep("Thanksgiving")),
+                             B = c("Church (anonymous)", 
+                                   "Street Children", 
+                                   "Thanksgiving",
+                                   "Church (non anonymous)", 
+                                   "Street Children", 
+                                   "Thanksgiving",
+                                   "Church (non anonymous)", 
+                                   "Thanksgiving",
+                                   rep("Church (non anonymous)",2)))
+dictator_games
 ```
+#>
 
 The first four games in the above table are classical dictator games where the participant had to split the endowment between herself/himself and the other party, whereas the other 6 games are a modification in which the participant had to split the endowment between two different recipients (other than himself/herself).  
 
@@ -133,63 +159,142 @@ $~$
 
 We will use the data `wave1_and_wave2_church_data.csv` for the next few sections. Before we can start working with the data, we need to first load it.  
 
+#< info "Loading data using read.csv()"
+There are a number of packages and functions in R that allow us to load different types of data files. In order to load a `.csv` file, one of the functions we can use is `read.csv()`. We can also use other functions like `read_csv()` from the `readr` package.
 ```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("Loading data using read.csv()")
+# Using read.csv() to load a .csv data into R
+read.csv("path_to_your_dataset")
 ```
+
+To make it easy to use this data further, you can store it in a variable:
+```{r eval=FALSE}
+# Storing the data in variable dat
+dat <- read.csv("path_to_your_dataset")
+
+# You can also use "=" instead of "<-"
+dat = read.csv("path_to_your_dataset")
+```
+
+**Tip:** Keyboard shortcut for making `<-` in RStudio is `Alt` + `-`
+#>
 
 **Exercise:** Run the code below by pressing `check`.
 
-```{r "3_3"}
+```{r "load data"}
+#< task
 # Load wave1_and_wave2_church_data.csv into the variable dat using command read.csv()
 dat <- read.csv("wave1_and_wave2_church_data.csv")
+#>
 ```
 
 Let's have a look at what this dataset contains.  
 
 **Exercise:** Use the command `head()` to display the first 6 rows of `dat`.
 
-```{r "3_4"}
+```{r "head"}
+#< task
 # Use head() to look at the first 6 rows of dat 
 # Enter your code below:
+#>
+head(dat)
+#< hint
+display("Just put dat inside head()")
+#>
 ```
 
 Hmm, we seem to have a lot of variables. The command `ncol()` returns the number of columns the dataset contains. Take a guess at the command that returns the number of rows of the dataset.  
 
 **Exercise:** Calculate the number of rows and columns in the dataset `dat`.
   
-```{r "3_5"}
+```{r "ncol nrow"}
+#< task
 # Use ncol() to get the number of columns of the dataset dat
 # Enter your code below:
+#>
+ncol(dat)
 
+#< task
 # Get the number of rows of the dataset
 # Enter your code below:
-
+#>
+nrow(dat)
+#< hint
+display("If ncol() gives you number of columns of a dataset, then nrow() gives you number of rows of the dataset!")
+#>
 ```
 
 Since we will not be using all of the variables, let us first keep only the ones that are relevant for the next few sections. To do this, we will use the command `select()` from the `dplyr` package.  
 
+#< info "Loading Packages in R"
+In R, packages are a collection of functions, their documentation, and sample datasets developed by R's user community. Packages can be installed using the command `install.packages()`, and once they are installed they can be loaded using the command `library()`.
 ```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("Loading Packages in R")
+# installing dplyr package
+install.packages("dplyr")
+
+# loading dplyr package
+library(dplyr)
+```
+#>
+
+
+#< info "dplyr - select(), mutate(), filter()"
+The dplyr package in R is a very useful package for data manipulation. We will look at three of its functions: `select()`, `mutate()`, and `filter()`. Looking at the names, you probably already have an intuition of what each function does.  
+
+$~$
+
+The `select()` function can be used for subsetting columns of a dataset. For example, the output of the code below would be all rows of the dataset `dat`, but only columns `treatment`, `age`, and `gender`.
+```{r eval=FALSE}
+# Selecting the variables treatment, age and gender from the dataset dat
+select(dat, treatment, age, gender)
 ```
 
+$~$
 
+The `mutate()` command can be used to add new variables to the dataset. The new variables can also be functions of existing variables.
 ```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("dplyr - select(), mutate(), filter()")
+# Adding a dummy variable for gender to dataset dat
+dat <- mutate(dat, gender_dummy = ifelse(gender == "Male", 0, 1))
 ```
 
+$~$
 
+The `filter()` command is used for subsetting rows of a dataset based on the conditions specified. For example, the below code will return only those rows of dataset `dat` where the value of the variable `gender` is 'Female'.
 ```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("Pipe Operator %>%")
+# This will return only the rows of dat where the variable gender is "Female"
+filter(dat, gender == "Female")
 ```
+
+$~$
+
+For further information on dplyr and its functions you can check <https://cran.r-project.org/web/packages/dplyr/dplyr.pdf> or <https://www.rdocumentation.org/packages/dplyr/versions/0.7.8>.
+
+**Tip:** To get information about a particular function in RStudio, you can run the function name with a question mark in front of it. For example, `?select` or `?dplyr::select` will give you the R Documentation of the `select()` function from the dplyr package in the bottom left panel of RStudio.
+
+#>
+
+
+#< info "Pipe Operator %>%"
+The pipe operator `%>%` of the `magrittr` package helps in executing several functions, step-wise, in a single code chunk; the output of the first function is taken as the input for the next function and so on. One big advantage is that the dataset has to be provided only once at the beginning, and the desired commands are then connected using `%>%`, thereby making the code look much neater. Below you can find an example of how a piece of code returning the same final output can be written with and without using the pipe operator.
+```{r eval=FALSE}
+# Without using pipe
+dat <- select(dat, treatment, age, gender)
+dat <- mutate(dat, female = ifelse(gender == "Female", 1, 0))
+dat <- filter(dat, treatment == "Insurance")
+
+# Using pipe
+dat <- dat %>% 
+  select(treatment, age, gender) %>% 
+  mutate(female = ifelse(gender == "Female", 1, 0)) %>% 
+  filter(treatment == "Insurance")
+```
+
+#>
 
 
 **Exercise:** Simply run the code chunk below by clicking on `edit` and then press `check`.
 
-```{r "3_11"}
+```{r}
+#< task
 # First load the package dplyr
 library(dplyr)
 
@@ -200,17 +305,28 @@ dat_2 <- dat %>%
          travels_more_than_hour, revival, choice_keep_church, 
          choice_keep_thanks, choice_keep_street, wave, church_name_raw, 
          church_name_grouped, Tinsurance, Tinsuranceinfo, Tnoinsurance)
+#>
 ```
 
 
+#< award "Pipe your way through!"
+Well done! You just learned how to use the pipe operator! Here's your first award: the keyboard shortcut for creating the pipe operator `%>%` in RStudio is `Ctrl` + `Shift` + `M`
+#>
 
 Let's take a look at the dataset again. This time we will use the command `sample_n()` to display a random sample of our dataset. The number of rows you want to be displayed can be specified using the second parameter `size`.  
 
 **Exercise:** Use the `sample_n()` command to display 5 random rows of the dataset `dat_2`.
 
-```{r "3_12"}
+```{r "sample_n"}
+#< task
 # Use sample_n() to see 5 rows of the dataset dat_2
 # Enter your code below:
+#>
+sample_n(dat_2, 5)
+#< hint
+display("To get 10 random rows of dat_2 one can run sample_n(dat_2, 10)",
+        "So to get 5 random rows of dat_2 you can run...?", sep = "\n")
+#>
 ```
 
 The variable `treatment` contains information about the group the participant was assigned to. Recall that the three possible groups are: 'Insurance' (which corresponds to the treatment enrollment into the insurance policy), 'Insurance information' (which corresponds to the control group receiving information about insurance but not getting enrolled in the policy), and 'No insurance' (which corresponds to the treatment group that neither received information about insurance nor were they enrolled in the policy).
@@ -265,10 +381,12 @@ A complete list of variables of the dataset `dat_2` along with their definitions
 Now that we know what the variables contain, let's go one step further and look at the *class* of the variable. One way to do this is by using the command `str()`. An alternative is the command `glimpse()`. They make it possible to see every column of the data, and next to the column name we can see the class of the respective variable.  
 
 **Exercise:** Call the command `str()` on the dataset `dat_2`.
-```{r "3_13"}
+```{r "str"}
+#< task
 # Call str() on dat_2
 # Enter your code below:
-
+#>
+str(dat_2)
 ```
 
 Observe that we have variables of type *chr*, *int*, and *num*.  
@@ -286,14 +404,16 @@ Let us introduce one more important type of variable: *factor*.
 
 We will now change the type of classes for some of the variables.  
 
-```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("mutate_if() and mutate_at()")
-```
+#< info "mutate_if() and mutate_at()"
+A variation of the `mutate()` function, `mutate_if()` is useful when we want to perform operations only on certain *columns* that satisfy the specified conditions. So you first provide the dataset, then the condition you want to be checked, and finally the transformation you want to be performed.     
+
+Another variation of `mutate()`, `mutate_at()` affects only the *columns* that were explicitly defined inside this function. You can specify the columns with a character vector, or using `vars()`.
+#>
 
 
 **Exercise:** Go through the below code and run it.
-```{r "3_14"}
+```{r "var types"}
+#< task
 # Changing variable types
 dat_2 <- dat_2 %>% 
   # converting all character variables to factors
@@ -303,49 +423,48 @@ dat_2 <- dat_2 %>%
                  "pray_multiple", "travels_more_than_hour", "revival", 
                  "wave", "Tinsurance", "Tinsuranceinfo", "Tnoinsurance"),
             as.factor)
+#>
 ```
 
+#< award "Shhh... here's a cheat sheet.."
+Now that you have learned some dplyr commands, as an award you get this [cheat sheet][link3]!
+[link3]: https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf
+#>
 
 Now make some guesses about the data.
 
 ***
 
-
-Quiz: What do you think about the gender distribution of the dataset?
-
-[1]: I think the dataset has more males than females.
-[2]: I think the dataset has more females than males.
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("gender quiz")
-```
+#< quiz "gender quiz"
+question: What do you think about the gender distribution of the dataset?
+sc:
+- I think the dataset has more males than females.
+- I think the dataset has more females than males.*
+success: Nice guesswork! In the dataset there are almost twice as many females as there are males.
+failure: Think again.
+#>
 
 ***
 
-
-Quiz: Do you think majority of the participants of the dataset go to church daily?
-
-[1]: Yes.
-[2]: No.
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("church daily quiz")
-```
+#< quiz "church daily quiz"
+question: Do you think majority of the participants of the dataset go to church daily?
+sc:
+- Yes.
+- No.*
+success: You guessed right!
+failure: Oops, try again.
+#>
 
 ***
 
-
-Quiz: Do you think majority of the participants of the dataset go to church weekly?
-
-[1]: Yes.
-[2]: No.
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("church weekly quiz")
-```
+#< quiz "church weekly quiz"
+question: Do you think majority of the participants of the dataset go to church weekly?
+sc:
+- Yes.*
+- No.
+success: You guessed right!
+failure: Oops, try again.
+#>
 
 ***
 
@@ -363,14 +482,27 @@ div#chunk_3_15_chunkUI th{
   padding-right: 1em
 }
 </style>
-```{r "3_15"}
+```{r "skim"}
+#< task
 # Load the package skimr
 # Enter your code below:
 
+#>
+library(skimr)
+#< hint
+display("You can load packages in R using the library() command. For example, to load package 'xyz' you can run the command library(xyz).")
+#>
 
+
+
+#< task
 # Call skim() on dat_2
 # Enter your code below:
-
+#>
+skim(dat_2)
+#< hint
+display("Just enter skim(dat_2)")
+#>
 ```
 
 ***
@@ -401,27 +533,52 @@ Before we proceed, we need to load the dataset and make the necessary changes ag
 
 **Exercise:** Replace the ___ with appropriate commands.
 
-```{r "4_1"}
+```{r}
+#< fill_in
+# # Load the dataset
+# dat <- ___("wave1_and_wave2_church_data.csv")
+# 
+# # Make necessary changes in dataset dat and store it in variable dat_2
+# dat_2 <- ___ %>% 
+#   # selecting desired variables
+#   ___(treatment, age, gender, ethnicity, ethnicity_akan, 
+#          ethnicity_ewe, ethnicity_ga, higheducation,
+#          employed, tmonthlyincome, church_daily, church_weekly,
+#          pray_multiple, travels_more_than_hour, revival, 
+#          choice_keep_church, choice_keep_thanks, choice_keep_street, 
+#          wave, Tinsurance, Tinsuranceinfo, Tnoinsurance) %>% 
+#   # creating dummy variables for gender and wave
+#   mutate(Female = ifelse(gender == "Female", 1, 0),
+#          Wave_2 = ifelse(wave == 2, 1, 0)) %>% 
+#   # converting all character variables to factors
+#   ___(is.character, as.factor) %>% 
+#   # converting some other variables to factor
+#   ___(vars("higheducation", "employed", "church_daily", "church_weekly",
+#                  "pray_multiple", "travels_more_than_hour", "revival", 
+#                  "wave", "Tinsurance", "Tinsuranceinfo", "Tnoinsurance"),
+#             as.factor)
+#>
+# sample solution
 # Load the dataset
-dat <- ___("wave1_and_wave2_church_data.csv")
+dat <- read.csv("wave1_and_wave2_church_data.csv")
 
-# Make necessary changes in dataset dat and store it in variable dat_2
-dat_2 <- ___ %>% 
+# Make necessary changes
+dat_2 <- dat %>%
   # selecting desired variables
-  ___(treatment, age, gender, ethnicity, ethnicity_akan, 
+  select(treatment, age, gender, ethnicity, ethnicity_akan,
          ethnicity_ewe, ethnicity_ga, higheducation,
          employed, tmonthlyincome, church_daily, church_weekly,
-         pray_multiple, travels_more_than_hour, revival, 
-         choice_keep_church, choice_keep_thanks, choice_keep_street, 
-         wave, Tinsurance, Tinsuranceinfo, Tnoinsurance) %>% 
+         pray_multiple, travels_more_than_hour, revival,
+         choice_keep_church, choice_keep_thanks, choice_keep_street,
+         wave, Tinsurance, Tinsuranceinfo, Tnoinsurance) %>%
   # creating dummy variables for gender and wave
   mutate(Female = ifelse(gender == "Female", 1, 0),
-         Wave_2 = ifelse(wave == 2, 1, 0)) %>% 
+         Wave_2 = ifelse(wave == 2, 1, 0)) %>%
   # converting all character variables to factors
-  ___(is.character, as.factor) %>% 
+  mutate_if(is.character, as.factor) %>%
   # converting some other variables to factor
-  ___(vars("higheducation", "employed", "church_daily", "church_weekly",
-                 "pray_multiple", "travels_more_than_hour", "revival", 
+  mutate_at(vars("higheducation", "employed", "church_daily", "church_weekly",
+                 "pray_multiple", "travels_more_than_hour", "revival",
                  "wave", "Tinsurance", "Tinsuranceinfo", "Tnoinsurance"),
             as.factor)
 ```
@@ -438,36 +595,69 @@ The next steps are to decide the level of significance, calculate the test stati
 
 If you are new to hypothesis testing and t-tests, or would like to refresh your knowledge, then check the info boxes below.
 
-```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("Hypothesis Testing")
-```
+#< info "Hypothesis Testing"
+
+A hypothesis is an assumption or claim that we want to test. 
+
+**Null hypothesis** is the hypothesis that there is no difference between things. It is usually denoted by $H_0$.
+
+Let's say we want to test if the mean of two populations is different. In this case, we test the null hypothesis that the two population means are equal
+$$H_0:\mu_1=\mu_2$$
+
+against the **alternate hypothesis**, denoted by $H_1$, that the two population means are not equal.
+$$H_1:\mu_1 \ne \mu_2$$
+
+This is an example of a two-sided or two-tailed test.
+
+The **level of significance**, usually denoted by $\alpha$, is then decided upon. The significance level denotes the probability of rejecting the null hypothesis when it is true. This is also known as Type I error. The level of significance also helps in determining the critical value and rejection region. It is usually common to take alpha as $0.05$ ($5\%$ level of significance). In the above example, a significance level of $0.05$ would indicate that there is a $5\%$ risk of concluding that there is difference in the two population means when there is actually no difference. 
+
+We then calculate the appropriate **test statistic**. If the test statistic falls in the rejection region, we reject the null hypothesis at $\alpha$ level of significance. Otherwise we say we do not have sufficient evidence to reject the null hypothesis at $\alpha$ level of significance.
+
+We can also use **p-values** to make this decision. In a hypothesis test, the p-value is the probability of getting a value of the test statistic that is at least as extreme as the test statistic obtained from the sample data, assuming that the null hypothesis is true (Triola, Mario, 2019, p. 363). If the p-value is less than the significance level, we have sufficient evidence to reject the null hypothesis at $\alpha$ level of significance. Otherwise, we do not have enough evidence to reject the null hypothesis.
+
+For more information you can read Triola, Mario (2019, pp. 356-373).
+#>
 
 
-```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("Welch's t-test")
-```
+#< info "Welch's t-test"
+
+Welch's t-test, developed by Bernard Lewis Welch, is a two-sample t-test used to test the hypothesis that the difference in mean of two populations is $0$. So the null hypothesis to be tested is
+$$H_0:\mu_1-\mu_2=0$$
+
+The test statistic of the two-sample Welch t-test is
+$$T=\frac{\bar{\mu_1}−\bar{\mu_2}}{\sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}}$$
+where $\bar{\mu_i}$ is the sample mean of the $i^{th}$ sample, ${s_i^2}$ is the sample variance of the $i^{th}$ sample, and $n_i$ is the sample size of the $i^{th}$ sample.
+
+Under the null hypothesis, the test statistic $T$ is t-distributed with $v$ degrees of freedom
+$$v=\left(\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}\right)^2 \bigg/ \left(\frac{(s_1^2/n_1)^2}{n_1-1}+\frac{(s_2^2/n_2)^2}{n_2-1}\right)$$
+
+Hence, $H_0$ can be rejected if the observed value of the test statistic $T$ falls in the rejection region, i.e. if $T \lt t_{\alpha/2,v}$  or  $T \gt t_{1−\alpha/2,v}$. Note that  $t_{\alpha,v}$ is the $\alpha$-quantile of the t-distribution with $v$ degrees of freedom.
+
+Equivalently, we can reject $H_0$ if the p-value is smaller than the significance level $\alpha$. In a hypothesis test, the p-value is the probability of getting a value of the test statistic that is at least as extreme as the test statistic obtained from the sample data, assuming that the null hypothesis is true (Triola, Mario, 2019, p. 363). Put differently, it is the smallest significance level at which the null hypothesis would be rejected, given the observed t-statistic.
+
+For more details you can read Taeger and Kuhnt (2014, pp. 28-31).
+#>
 
 
 In R, a two-sample Welch's t-test can be performed by using the function `t.test(x,y)`. A vector of *numeric* data values of the variable to be tested should be provided in the arguments x and y.  
 
 Since we want to run a t-test to see if the average age of participants receiving treatment Insurance is significantly different from the average age of participants receiving treatment Insurance information, we will first filter the dataset for treatment Insurance and *pull* the age of these participants and store it in a vector. We will do the same for the treatment Insurance information. Then we will run a t-test on these two vectors.
 
-```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("dplyr::pull")
-```
+#< info dplyr::pull()
+The `pull()` command of `dplyr` package helps in extracting a single column from a dataset.
+#>
 
 **Exercise:** Go through the below code and run it.
 
-```{r "4_2"}
+```{r}
+#< task
 # Extracting the ages of participants with treatment Insurance and storing it in vector x
 x <- dat_2 %>% filter(treatment == "Insurance") %>% pull(age)
 # Extracting the ages of participants with treatment Insurance information and storing it in vector y
 y <- dat_2 %>% filter(treatment == "Insurance information") %>% pull(age)
 # Running t-test to test for equality of mean ages of the treatments Insurance and Insurance information
 t.test(x,y)
+#>
 ```
 
 The value **t** shows the observed value of the test statistic, **df** denotes the degrees of freedom, and **p-value** indicates the p-value of the test statistic using which you can determine whether you can reject the null hypothesis or not. In a hypothesis test, the p-value is the probability of getting a value of the test statistic that is at least as extreme as the test statistic obtained from the sample data, assuming that the null hypothesis is true (Triola, Mario, 2019, p. 363). Put differently, it is the smallest significance level at which the null hypothesis would be rejected, given the observed test-statistic. If the p-value is **less** than the significance level $\alpha$, we have sufficient evidence to reject the null hypothesis at $\alpha$ level of significance. Otherwise, we do not have enough evidence to reject the null hypothesis.
@@ -481,60 +671,80 @@ Now let's test if the average age of participants with treatment Insurance infor
 
 **Exercise:** Replace the ___ with appropriate commands to extract the ages of participants with treatment Insurance information and No insurance and store it in vector x and y respectively. Then run a t-test to test if the age of the participants with treatment Insurance information is significantly different from the age of the participants with treatment No insurance.
 
-```{r "4_3"}
-# Replace ___ with appropriate dplyr commands to extract the ages of participants with treatment Insurance information and store it in vector x
-x <- dat_2 %>% ___(treatment == "Insurance information") %>% ___(age)
-# Replace ___ with appropriate dplyr commands to extract the ages of participants with treatment No insurance and store it in vector y
-y <- dat_2 %>% ___(treatment == "No insurance") %>% ___(age)
+```{r}
+#< fill_in
+# # Replace ___ with appropriate dplyr commands to extract the ages of participants with treatment Insurance information and store it in vector x
+# x <- dat_2 %>% ___(treatment == "Insurance information") %>% ___(age)
+# # Replace ___ with appropriate dplyr commands to extract the ages of participants with treatment No insurance and store it in vector y
+# y <- dat_2 %>% ___(treatment == "No insurance") %>% ___(age)
+# # Run Welch's t-test to test for equality of mean ages of participants with treatment Insurance information and No insurance
+# ___(x,y)
+#>
+# Extract the ages of participants with treatment Insurance information and store it in vector x
+x <- dat_2 %>% filter(treatment == "Insurance information") %>% pull(age)
+
+# Extract the ages of participants with treatment No insurance and store it in vector y
+y <- dat_2 %>% filter(treatment == "No insurance") %>% pull(age)
+
 # Run Welch's t-test to test for equality of mean ages of participants with treatment Insurance information and No insurance
-___(x,y)
+t.test(x,y)
 ```
 
 It's time for you to interpret the results!
 
-
-Quiz: The null hypothesis of the above test is ...
-
-[1]: There is difference in the mean age of participants with treatment Insurance information and mean age of participants with treatment No insurance.
-[2]: There is no difference in the mean age of participants with treatment Insurance information and mean age of participants with treatment No insurance.
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("t.test H0")
-```
+#< quiz "t.test H0"
+question: The null hypothesis of the above test is ...
+sc:
+- There is difference in the mean age of participants with treatment Insurance information and mean age of participants with treatment No insurance.
+- There is no difference in the mean age of participants with treatment Insurance information and mean age of participants with treatment No insurance.*
+success: Good job! Your answer is correct!
+failure: Try again.
+#>
 
 ***
 
-
-Quiz: Observe the p-value in the above results. Assume a 5% level of significance. Which of the following statements are correct?
-
-[1]: The p-value is greater than the assumed significance level.
-[2]: The p-value is smaller than the assumed significance level.
-[3]: We have sufficient evidence to reject the null hypothesis at 5% level of significance.
-[4]: We do not have sufficient evidence to reject the null hypothesis at 5% level of significance.
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("t.test 1")
-```
+#< quiz "t.test 1"
+question: Observe the p-value in the above results. Assume a 5% level of significance. Which of the following statements are correct?
+mc:
+- The p-value is greater than the assumed significance level.*
+- The p-value is smaller than the assumed significance level.
+- We have sufficient evidence to reject the null hypothesis at 5% level of significance.
+- We do not have sufficient evidence to reject the null hypothesis at 5% level of significance.*
+success: Great, you answered correctly!
+failure: Try again.
+#>
 
 ***
 
-
-Quiz: Observe the confidence interval of the difference in means in the above result. Which of the following statements are correct?
-
-[1]: The confidence interval does not contain the hypothesized value 0.
-[2]: The confidence interval contains the hypothesized value 0.
-[3]: We have evidence to reject the null hypothesis at 5% level of significance.
-[4]: We do not have sufficient evidence to reject the null hypothesis at 5% level of significance.
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("t.test 2")
-```
+#< quiz "t.test 2"
+question: Observe the confidence interval of the difference in means in the above result. Which of the following statements are correct?
+mc:
+- The confidence interval does not contain the hypothesized value 0.
+- The confidence interval contains the hypothesized value 0.*
+- We have evidence to reject the null hypothesis at 5% level of significance.
+- We do not have sufficient evidence to reject the null hypothesis at 5% level of significance.*
+success: Great, you answered correctly!
+failure: Try again.
+#>
 
 ***
 
+#< award "Function of `function()` is to create functions!"
+Congratulations! You have unlocked the power of creating functions in R! Creating own functions is very useful especially if we want to perform the same task multiple times. In R, functions can be created by starting with the command `function()`, and specifying the input parameters inside of the brakcets `()`. It is then followed by curly brackets `{ }` within which the body of the function is coded. For example, the below function `fun_1()` multiplies the specified input by 20 and adds a percentage sign to the result.
+
+```{r}
+# Define the function and store it i fun_1
+fun_1 <- function(x){
+  paste(x * 2,"%",sep = "")
+  }
+```
+
+```{r}
+# Run fun_1() on number 25
+fun_1(25)
+```
+
+#>
 
 
 Since we want to perform t-tests on multiple variables, I created a function `balance_test()` which will run the t-test on the variables specified in its input argument `var_list` and return a table with the necessary values as the output. Go through the code below if you are interested. Otherwise, just run it.
@@ -542,7 +752,8 @@ Since we want to perform t-tests on multiple variables, I created a function `ba
 
 **Exercise:** Run the code below.
 
-```{r "4_6"}
+```{r}
+#< task
 # Create a function for performing balance tests
 balance_test <- function(data, var_to_filter, value_1, value_2, var_list){
   
@@ -596,6 +807,7 @@ balance_test <- function(data, var_to_filter, value_1, value_2, var_list){
   # return the balance test table
   return(bal_test_full)
   }
+#>
 ```
 
 To use the function `balance_test(data, var_to_filter, value_1, value_2, var_list)` we need to specify the input parameters. The dataset can be specified in the argument `data`. In `var_to_filter` you have to specify the *variable* across which the comparison you want to make, and the *values* of this variable across which the comparison you want to make should be specified in `value_1` and `value_2`. You can provide the variable (or list of variables) for which you want to run the t-test in the input parameter `var_list`. For example, if you want to test the mean age of treatments Insurance and Insurance information, the command should be: `balance_test(data = dat_2, var_to_filter = "treatment", value_1 = "Insurance", value_2 = "Insurance information", var_list = "age")`.
@@ -604,7 +816,8 @@ We will now specify a list of variables for which we want to run the t-test, and
 
 **Exercise:** Run the code below.
 
-```{r "4_7"}
+```{r}
+#< task
 # Specify the variables you want to perform the balance test for
 variables <- c("age","Female","tmonthlyincome","employed","higheducation",
                "ethnicity_akan","ethnicity_ewe","ethnicity_ga",
@@ -614,6 +827,7 @@ variables <- c("age","Female","tmonthlyincome","employed","higheducation",
 t1 <- balance_test(data = dat_2, var_to_filter = "treatment", value_1 = "Insurance",
                    value_2 = "Insurance information", var_list = variables)
 t1
+#>
 ```
 
 The column `Insurance` contains the mean of the corresponding variable for participants with treatment Insurance, and the column `Insurance information` contains the mean of the corresponding variable for participants with treatment Insurance information. `Difference` contains the difference between these two means. The column `t` shows the value of the t test statistic and the p-values are contained in column `p_value`. The columns `ci_l` and `ci_u` contain the lower and upper limit of the $95\%$ confidence interval of the difference in means.
@@ -624,9 +838,15 @@ Now we will run the `balance_test()` function to to check if the variables speci
 
 **Exercise:** Replace the ___ with appropriate commands to run the function `balance_test()` on the data `dat_2` to test if the variables listed in the above list `variables` are significantly different for participants with treatment "Insurance information" and participants with treatment "No insurance".
 
-```{r "4_8"}
+```{r}
+#< fill_in
 # Balance test for Insurance information vs No insurance
 t2 <- ___(data = dat_2, var_to_filter = "treatment", value_1 = ___,
+                   value_2 = "No insurance", var_list = variables)
+t2
+#>
+# Balance test for Insurance information vs No insurance
+t2 <- balance_test(data = dat_2, var_to_filter = "treatment", value_1 = "Insurance information",
                    value_2 = "No insurance", var_list = variables)
 t2
 ```
@@ -635,17 +855,15 @@ Answer the quiz below.
 
 ***
 
-
-Quiz: Which of the following statements are true?
-
-[1]: The average monthly income of participants with treatment Insurance information is significantly different from those with treatment No insurance.
-[2]: The participants with treatment Insurance information who attended the experiment during revival weeks are significantly more than participants with treatment No Insurance who attended the experiment during revival weeks.
-[3]: The participants with ethnicity Ga Abende who received treatment Insurance information are significantly less than participants with ethnicity Ga Abende who received treatment No Insurance.
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("balance_test 1")
-```
+#< quiz "balance_test 1"
+question: Which of the following statements are true?
+mc:
+- The average monthly income of participants with treatment Insurance information is significantly different from those with treatment No insurance.
+- The participants with treatment Insurance information who attended the experiment during revival weeks are significantly more than participants with treatment No Insurance who attended the experiment during revival weeks.*
+- The participants with ethnicity Ga Abende who received treatment Insurance information are significantly less than participants with ethnicity Ga Abende who received treatment No Insurance.*
+success: Great, you are correct!
+failure: Try again.
+#>
 
 ***
 
@@ -661,9 +879,13 @@ First, we need to load the dataset again.
 
 **Exercise:** Replace the ___ with the appropriate command to load the dataset `dat_2.csv` and store it in `dat_2`.
 
-```{r "5_1"}
+```{r}
+#< fill_in
+# # Load dat_2.csv and store it in dat_2
+# dat_2 <- ___("dat_2.csv")
+#>
 # Load dat_2.csv and store it in dat_2
-dat_2 <- ___("dat_2.csv")
+dat_2 <- read.csv("dat_2.csv")
 ```
 
 
@@ -673,10 +895,18 @@ Let's look at an example to understand the working of these commands better.
 
 **Exercise:** Replace the ___ with appropriate command in order to get the mean monthly income of the dataset `dat_2`.
 
-```{r "5_2"}
-# Replace the ___ with appropriate commands to get the average monthly income
-dat_2 %>%
-  summarise(avg_monthly_income = ___(tmonthlyincome))
+```{r}
+#< fill_in
+# # Replace the ___ with appropriate commands to get the average monthly income
+# dat_2 %>%
+#   summarise(avg_monthly_income = ___(tmonthlyincome))
+#>
+# sample solution
+dat_2 %>% 
+  summarise(avg_monthly_income = mean(tmonthlyincome))
+#< hint
+display("Hmm...what can be the command for getting the mean...? Well, it is simply mean!")
+#>
 ```
 
 Hmm, strange, why do we get NA?
@@ -685,10 +915,16 @@ Well, we have some missing values for the variable `tmonthlyincome`. So, in orde
 
 **Exercise:** Replace the ___ with appropriate commands in order to get the average monthly income of the dataset `dat_2`.
 
-```{r "5_3"}
-# Replace the ___ with appropriate commands to get the average monthly income
+```{r}
+#< fill_in
+# # Replace the ___ with appropriate commands to get the average monthly income
+# dat_2 %>% 
+#   summarise(avg_monthly_income = ___(tmonthlyincome, ___ = TRUE))
+#>
+# sample solution
 dat_2 %>% 
-  summarise(avg_monthly_income = ___(tmonthlyincome, ___ = TRUE))
+  summarise(avg_monthly_income = mean(tmonthlyincome, na.rm = TRUE))
+
 ```
 
 Good job! So the average monthly income of our dataset is $GHS~308.5179$. ($3.8~GHS$ was equal to $1~USD$ in 2015.)  
@@ -697,12 +933,14 @@ But what if we want to see the average monthly income for different treatments? 
 
 **Exercise:** Run the code below.
 
-```{r "5_4"}
+```{r}
+#< task
 # Average monthly income for different treatments
 dat_2 %>% 
   group_by(treatment) %>% 
   summarise(avg_monthly_income = mean(tmonthlyincome, na.rm = T)) %>% 
   as.data.frame()
+#>
 ```
 
 Here, the data `dat_2` is first grouped by the variable `treatment`, and the `summarise()` command that follows is then performed on this *grouped dataset*, thereby giving us the average monthly income for the different treatments.  
@@ -717,7 +955,8 @@ To understand it better, the first code has already been provided for you.
 
 **Exercise:** Go through the below code and run it.
 
-```{r "5_5",dev='svg'}
+```{r dev="svg"}
+#< task
 # Load the package ggplot2
 library(ggplot2)
 
@@ -727,6 +966,7 @@ dat_2 %>%
   summarise(average_income = mean(tmonthlyincome, na.rm = T)) %>% 
   ggplot(aes(x = treatment, y = average_income)) + # specifying the aesthetics
   geom_bar(stat = "identity") # adding layer geom_bar
+#>
 ```
 
 On the x-axis we have the three treatment groups, and on the y-axis we have average monthly income in $GHS$. The height of the bars thus represent the average monthly income of the corresponding treatment group. So the plot tells us the same thing we found above, but this time in a visual way. 
@@ -742,11 +982,18 @@ Moving on, now we want to plot the proportion of gender for the three treatment 
 
 **Exercise:** Replace the ___ with appropriate dplyr commands to get the proportion of females and males for the three treatment groups.
 
-```{r "5_6"}
-# Replace the ___ with appropriate dplyr commands to get the gender proportion for the treatment groups
+```{r}
+#< fill_in
+# # Replace the ___ with appropriate dplyr commands to get the gender proportion for the treatment groups
+# dat_2 %>% 
+#   ___(treatment, gender) %>% 
+#   ___(count = n()) %>% 
+#   mutate(proportion = count/sum(count))
+#>
+# sample solution
 dat_2 %>% 
-  ___(treatment, gender) %>% 
-  ___(count = n()) %>% 
+  group_by(treatment, gender) %>% 
+  summarise(count = n()) %>% 
   mutate(proportion = count/sum(count))
 ```
 
@@ -754,37 +1001,67 @@ The data is first grouped into the three treatment groups 'Insurance', 'Insuranc
 
 We will now visualize the above information using similar `ggplot2` commands as before. But this time we will beautify the plots a little and also add confidence intervals using `geom_errorbar()`. The lower and upper values of the confidence interval can be provided using `ymin` and `ymax` aesthetics in the `aes()` argument.
 
-```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("Confidence Intervals")
-```
+#< info "Confidence Intervals"
+The Confidence interval (CI) is the range of values in which we expect our estimate to lie, within a certain level of confidence. The confidence interval for proportions can be constructed as follows:
+$$CI = \hat{p} \pm z \sqrt{\hat{p}(1-\hat{p})/n}$$
+where $\hat{p}$ is the proportion in the sample, $z$ denotes the critical value of the z-distribution, and $n$ is the sample size.  
+#>
 
 **Exercise:** Replace the ___ with the appropriate ggplot2 commands to plot the proportion of gender for the different treatments.
 
-```{r "5_7",dev='svg'}
-# Replace ___ with appropriate ggplot2 commands to plot proportion of gender for the different treatment groups
+```{r dev='svg'}
+#< fill_in
+# # Replace ___ with appropriate ggplot2 commands to plot proportion of gender for the different treatment groups
+# dat_2 %>% 
+#   ___(treatment, gender) %>% 
+#   summarise(count = n()) %>% 
+#   mutate(proportion = count/sum(count),
+#          ci_l = proportion - qnorm(1-0.05/2)*sqrt(proportion*(1-proportion)/count),
+#          ci_u = proportion + qnorm(1-0.05/2)*sqrt(proportion*(1-proportion)/count)) %>% 
+#   ggplot(___(x = treatment, y = proportion, fill = gender)) +
+#   geom_bar(___ = "identity", 
+#            width = 0.9,
+#            position = "dodge", # position dodge places the bars side to side
+#            colour = "black") +
+#   geom_errorbar(aes(ymin = ci_l, ymax = ci_u),
+#                 position = position_dodge(0.9),
+#                 width = 0.3) +
+#   ggtitle("Gender Proportion Across Treatments") +
+#   ___("Treatments") +
+#   ylab("Proportion") +
+#   theme(panel.background = element_rect("ivory"),
+#         panel.grid = element_line("grey"))
+#>
+# sample solution
 dat_2 %>% 
-  ___(treatment, gender) %>% 
+  group_by(treatment, gender) %>% 
   summarise(count = n()) %>% 
   mutate(proportion = count/sum(count),
          ci_l = proportion - qnorm(1-0.05/2)*sqrt(proportion*(1-proportion)/count),
          ci_u = proportion + qnorm(1-0.05/2)*sqrt(proportion*(1-proportion)/count)) %>% 
-  ggplot(___(x = treatment, y = proportion, fill = gender)) +
-  geom_bar(___ = "identity", 
+  
+  ggplot(aes(x = treatment, y = proportion, fill = gender)) +
+  geom_bar(stat = "identity", # overriding default stat "count" of geom_bar with "identity" 
            width = 0.9,
            position = "dodge", # position dodge places the bars side to side
            colour = "black") +
+  
   geom_errorbar(aes(ymin = ci_l, ymax = ci_u),
                 position = position_dodge(0.9),
                 width = 0.3) +
-  ggtitle("Gender Proportion Across Treatments") +
-  ___("Treatments") +
+  ggtitle("Gender Proportion Across Treatments",
+          subtitle = "with 95% Confidence Intervals") +
+  xlab("Treatments") +
   ylab("Proportion") +
   theme(panel.background = element_rect("ivory"),
         panel.grid = element_line("grey"))
+
 ```
 
 
+#< award "Build interactive plots using Plotly!"
+The `plotly` package is a great tool to build interactive plots in R. You can directly initialize a plotly object, or you can even transform a ggplot2 object into a plotly object using the command `ggplotly()`. For more information visit <https://plotly.com/r/> or <https://plotly-r.com/index.html>.
+#>
 
 Here we have treatment groups on the x-axis and proportion on the y-axis. The height of the bars represent the proportion of the gender *within* the respective group. The 95% CI shows that you can be 95% certain that the interval contains the true proportion of the respective gender of the population. Lower variability in data will result in a narrower confidence interval, whereas higher variability in data will result in a wider confidence interval.
 
@@ -795,19 +1072,42 @@ Now let's see how ethnicity is distributed across the treatments. This time we w
 
 **Exercise:** Replace the ___ with the appropriate commands to plot the proportion of various ethnicities (variable `ethnicity`) for the different treatment groups.
 
-```{r "5_8",dev='svg', output='htmlwidget', widget='plotly'}
+```{r dev='svg',output="htmlwidget",widget="plotly"}
+#< task
 # Load the package plotly
 # Enter your code below:
 
-# Replace ___ with appropriate commands to plot proportion of different ethnicities for the different treatment groups
-p1 <- dat_2 %>%
-  group_by(treatment, ___) %>%
-  summarise(count = ___) %>%
-  ___(proportion = count/sum(count)) %>%
+#>
+library(plotly)
+
+#< fill_in
+# # Replace ___ with appropriate commands to plot proportion of different ethnicities for the different treatment groups
+# p1 <- dat_2 %>%
+#   group_by(treatment, ___) %>%
+#   summarise(count = ___) %>%
+#   ___(proportion = count/sum(count)) %>%
+#   ggplot() +
+#   ___(aes(x = ___, y = proportion, fill = ethnicity),
+#            stat = ___,
+#            ___ = "dodge",
+#            colour = "black") +
+#   theme(panel.background = element_rect("ivory"),
+#         panel.grid = element_line("grey")) +
+#   ggtitle("Ethnicity Proportion Across Treatments") +
+#   xlab("Treatments") +
+#   ylab("Proportion")
+#
+# ggplotly(p1)
+#>
+# sample solution
+p1 <- dat_2 %>% 
+  group_by(treatment, ethnicity) %>% 
+  summarise(count = n()) %>% 
+  mutate(proportion = count/sum(count)) %>% 
   ggplot() +
-  ___(aes(x = ___, y = proportion, fill = ethnicity),
-           stat = ___,
-           ___ = "dodge",
+  geom_bar(aes(x = treatment, y = proportion, fill = ethnicity),
+           stat = "identity", 
+           position = "dodge",
            colour = "black") +
   theme(panel.background = element_rect("ivory"),
         panel.grid = element_line("grey")) +
@@ -830,10 +1130,18 @@ In this section we will plot the results of the three main dictator games *Self 
 
 **Exercise:** Load the dataset `dat_2.csv` and assign it to variable `dat_2`.
 
-```{r "6_1"}
+```{r}
+#< task
 # Load the dataset dat_2.csv and assign it to variable dat_2
 # Enter your code below:
 
+#>
+# sample solution
+dat_2 <- read.csv("dat_2.csv")
+
+#< hint
+display('Loading dataset "my_file.csv" and assigning it to variable "my_data" can be done by calling the command my_data <- read.csv("my_file.csv")')
+#>
 ```
 
 
@@ -841,9 +1149,13 @@ In this section we will plot the results of the three main dictator games *Self 
 
 **Exercise:** Replace the ___ with the appropriate dplyr command to keep only the members who participated in the experiment during regular weeks.
 
-```{r "6_2"}
-# Replace the ____ with the appropriate dplyr command to keep only the members who participated in the experiment during regular weeks
-df_norevival <- dat_2 %>% ___(revival == 0)
+```{r}
+#< fill_in
+# # Replace the ____ with the appropriate dplyr command to keep only the members who participated in the experiment during regular weeks
+# df_norevival <- dat_2 %>% ___(revival == 0)
+#>
+df_norevival <- dat_2 %>% filter(revival == 0)
+
 ```
 
 
@@ -851,27 +1163,17 @@ The variables `choice_keep_church`, `choice_keep_street`, and `choice_keep_thank
 
 ***
 
-
-Quiz: Write down the minimum value that you think the variables `choice_keep_church`, `choice_keep_street`, and `choice_keep_thanks` can take.
-
-Answer: 
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("min value quiz")
-```
+#< quiz "min value quiz"
+question: Write down the minimum value that you think the variables `choice_keep_church`, `choice_keep_street`, and `choice_keep_thanks` can take.
+answer: 0
+#>
 
 ***
 
-
-Quiz: Write down the maximum value that you think the variables `choice_keep_church`, `choice_keep_street`, and `choice_keep_thanks` can take.
-
-Answer: 
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("max value quiz")
-```
+#< quiz "max value quiz"
+question: Write down the maximum value that you think the variables `choice_keep_church`, `choice_keep_street`, and `choice_keep_thanks` can take.
+answer: 1
+#>
 
 ***
 
@@ -880,7 +1182,8 @@ Well, since these variables are *proportions*, they can only take values between
 Now, let's plot the results of the dictator game *Self v.s. Church (anonymous)* (variable `choice_keep_church`). As we are dealing with a continuous variable, we will plot a histogram for it. We will again use the `ggplot2` package for making the plots. In order to plot a histogram, we will use the geom `geom_histogram`.
 
 **Exercise:** Go through the below code and run it by clicking on `edit` and then press `check`.
-```{r "6_3",dev='svg'}
+```{r dev='svg'}
+#< task
 # Plot histogram for variable choice_keep_church
 ggplot(df_norevival) +
   geom_histogram(aes(choice_keep_church),
@@ -890,24 +1193,36 @@ ggplot(df_norevival) +
   ylab("Number of Participants") +
   theme(panel.background = element_rect("ivory"),
         panel.grid = element_line("grey"))
+#>
 ```
 
 On the x-axis we have the proportion of endowment given to church, and on the y-axis we have the number of participants. The height of the bins indicate the number of participants the respective bin contains. We can observe that most of the participants are clustered at the center, followed by a gradual decrease on both sides, but there's a spike at the extreme ends 0 and 1. We will talk about this spike again in a moment. First, let's adjust the interval of the bins by choosing a different `binwidth`.
 
 **Exercise:** Replace the ___ with the appropriate ggplot2 commands in order to plot a histogram for the variable `choice_keep_church`.
-```{r "6_4",optional=TRUE, dev='svg'}
-# Plot histogram for variable choice_keep_church
-___(df_norevival) +
-  ___(___(x = choice_keep_church),
+```{r optional = TRUE, dev="svg"}
+#< fill_in
+# # Plot histogram for variable choice_keep_church
+# ___(df_norevival) +
+#   ___(___(x = choice_keep_church),
+#                  binwidth = 0.08, # setting the width of the bins
+#                  fill = "turquoise",
+#                  colour = "black") +
+#   ___("Self v.s. Church") + # set the title of the plot
+#   ___("Proportion of Endowment Given to Church") + # set the x-axis label
+#   ___("Number of Participants") + # set the y-axis label
+#   theme(panel.background = element_rect("ivory"),
+#         panel.grid = element_line("grey"))
+#>
+ggplot(df_norevival) +
+  geom_histogram(aes(x = choice_keep_church),
                  binwidth = 0.08, # setting the width of the bins
                  fill = "turquoise",
                  colour = "black") +
-  ___("Self v.s. Church") + # set the title of the plot
-  ___("Proportion of Endowment Given to Church") + # set the x-axis label
-  ___("Number of Participants") + # set the y-axis label
+  ggtitle("Self v.s. Church") + # set the title of the plot
+  xlab("Proportion of Endowment Given to Church") + # set the x-axis label
+  ylab("Number of Participants") + # set the y-axis label
   theme(panel.background = element_rect("ivory"),
         panel.grid = element_line("grey"))
-
 ```
 
 As the name suggests, `binwidth` controls the width of the bin. This value has to be in accordance with the continuous variable that you are plotting.
@@ -917,7 +1232,8 @@ The function `grid.arrange` from the `gridExtra` package allows us to arrange mu
 
 **Exercise:** Run the code below.
 
-```{r "6_5",dev='svg'}
+```{r dev="svg"}
+#< task
 # Load the package gridExtra
 library(gridExtra)
 
@@ -949,9 +1265,14 @@ grid.arrange(
     theme(panel.background = element_rect("ivory"),
           panel.grid = element_line("grey"))
   )
+#>
 ```
 *This figure corresponds to Figure 1 of the paper.*
 
+#< award "Harry Plotter!"
+Congratulations! You are hereby bestowed with the magic of Harry Plotter! Data visualization is a very powerful and engaging way of communicating information, and a lot of times graphics can prove to be more effective than words! So, here's another [cheat sheet][link4] to help you practice your magic! ;)
+[link4]: https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf
+#>
 
 Observe that the result of all three dictator games have a roughly similar pattern: clustering in the middle, gradual decrease as we move along the tails, and a frequency spike at the extreme ends 0 and 1. This spike is probably seen because as we are dealing with proportions, it is not possible to go below 0 or above 1, *but*, hypothetically, *if* it was possible to keep less than nothing, or to keep more than the entire endowment, some of the participants clustered at these two extremes would have probably done so. However, as that is not a possibility, the participants are bound to, at most, either keep nothing, or keep everything, even if they *desire* to cross these limits. This observation is important when we are deciding the regression model to be chosen. We will come to this again in section 4.3.
 
@@ -968,10 +1289,17 @@ Before we start we need to load the dataset again.
 
 **Exercise:** Use the `read.csv()` command to load the dataset `df_norevival.csv` and store it in the variable `df_norevival`.
 
-```{r "7_1"}
+```{r}
+#< task
 # Use read.csv() to load df_norevival.csv and store it in df_norevival
 # Enter your code below:
 
+#>
+df_norevival <- read.csv("df_norevival.csv")
+
+#< hint
+display('For example, reading my_file.csv and assigning it to my_df can be done by running my_df = read.csv("my_file.csv")')
+#>
 ```
 
 
@@ -979,9 +1307,13 @@ As we only want to compare the treatment group *Insurance* to the control group 
 
 **Exercise:** Replace the ___ with appropriate commands to remove members of the treatment group 'No insurance' from the dataset `df_norevival`. Store the results in `df_norevival_1`.
 
-```{r "7_2"}
-# Replace ___ appropriately in order to remove treatment group 'No insurance' from the data df_norevival, and store the results in 'df_norevival_1'
-___ <- df_norevival %>% ___(treatment != ___)
+```{r}
+#< fill_in
+# # Replace ___ appropriately in order to remove treatment group 'No insurance' from the data df_norevival, and store the results in 'df_norevival_1'
+# ___ <- df_norevival %>% ___(treatment != ___)
+#>
+df_norevival_1 <- df_norevival %>% filter(treatment != "No insurance")
+
 ```
 
 This dataset `df_norevival_1` contains all the participants of treatment group *Insurance Enrollment* or control group *Insurance Information* who took part in the experiment during regular (non-revival) weeks.  
@@ -991,17 +1323,15 @@ We are interested in observing how enrollment into insurance affects the proport
 
 ***
 
-
-Quiz: In a regression problem where we want to observe how enrollment into insurance affects the proportion of endowment given to the church vs. kept with self, which do you think is the dependent and independent variable?
-
-[1]: Tinsurance is the independent variable and choice_keep_church is the dependent variable.
-[2]: choice_keep_church is the independent variable and Tinsurance is the dependent variable.
-[3]: It does not matter which one we take as dependent or independent variable.
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("dep ind var quiz")
-```
+#< quiz "dep ind var quiz"
+question: In a regression problem where we want to observe how enrollment into insurance affects the proportion of endowment given to the church vs. kept with self, which do you think is the dependent and independent variable?
+sc:
+- Tinsurance is the independent variable and choice_keep_church is the dependent variable.*
+- choice_keep_church is the independent variable and Tinsurance is the dependent variable.
+- It does not matter which one we take as dependent or independent variable.
+success: Good job! You answered correctly!
+failure: Try again.
+#>
 
 ***
 
@@ -1012,47 +1342,94 @@ $$choice\_keep\_church_i = \beta_0 + \beta_1 ~  Tinsurance_i + \epsilon_i~,~~i=1
 where $\beta_0$ and $\beta_1$ are the unknown parameters to be estimated, and $\epsilon$ is the error term. The subscript $i$ denotes the $i^{th}$ observation. (There are 538 observations in `df_norevival_1`.)
 
 
-```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("Ordinary Least Squares Estimation")
-```
+#< info "Ordinary Least Squares Estimation"
+A multiple linear regression model is of the following form:
+
+$$y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \beta_k x_k + \epsilon$$
+
+where $y$ is the *dependent variable* (also known as *response* or *target variable* or *regressand*),
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; $x_1, x_2, ..., x_k$ are the $k$ *independent variables* (also known as *explanatory variables* or *regressor*),
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; $\epsilon$ is the *disturbance* or *error term* that describes the unobserved influences on $y$,
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; $\beta_0, \beta_1, \beta_2, ... \beta_k$ are the unknown parameters to be estimated.
+
+$~$
+
+We can also write this in the form: $$y = \beta X + \epsilon$$
+where $y$ is the dependent or response variable,
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; $X$ is a matrix containing a constant vector and $k$ independent variables $x_1,...,x_k$,
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; $\beta$ is a vector of the unknown parameters,
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; $\epsilon$ is the vector of error terms.
+
+There are multiple ways of estimating the unknown parameters. One of the ways is using the Ordinary Least Squares (OLS) method of estimation.  
+
+$~$
+
+The disturbance term for the $i^{th}$ observation can be written as
+$$\epsilon_i = y_i - \beta X$$
+and the *residuals*, i.e. the estimated disturbance term, is defined as
+$$\hat{\epsilon} = y - \hat{y}$$ where $\hat{y} = \hat{\beta}X$ is the estimator of $y$.
+
+The OLS estimator $\hat{\beta}$ can be determined by minimizing the sum of squared errors
+$$\sum_{i = 1}^{n} \hat{\epsilon_i}^2 = \sum_{i = 1}^{n} (y_i - \hat{y_i})^2$$ where $n$ is the number of observations.
+
+The solution to this minimization problem is given by
+$$\hat{\beta} = (X'X)^{-1}X'y$$
+
+The proof can be found in *William H. Greene, Econometric Analysis, 2018 (pp. 29-30)*.
+#>
 
 
-```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("Assumptions of the Linear Regression Model")
-```
+#< info "Assumptions of the Linear Regression Model"
+
+In order to trust the results of the OLS estimation, the model should satisfy certain assumptions:
+
+1. **Linearity:** The regression model is linear in the parameters.
+
+2. **Full rank:** There are more number of observations than there are independent variables, i.e. $Rank(X) = k + 1 \le n$ where $k$ is the number of independent variables and $n$ is the number of observations.
+
+3. **Exogeneity of the independent variables:** Given the value of $x_i$, the expected value of the disturbance term is zero, i.e. $E[\epsilon|x_1,x_2,...,x_k]=E[\epsilon|X]=0$
+
+4. **Homoscedastic and non-autocorrelated disturbances:** The error term has a constant variance (homoscedasticity), i.e. $Var(\epsilon|X)=Var(\epsilon)=\sigma^2$, and there is no autocorrelation, i.e. $cov(\epsilon_i,\epsilon_j)=0~\forall~i \ne j$
+
+5. **Data Generation:** The data in $x_1, x_2,..., x_k$, that is, the process by which the explanatory variables $\sf x$ is generated, may be any mixture of constants and random variables.
+
+6. **Normal distribution:** The error term is normally distributed, i.e. $\epsilon|X \sim N(0,\sigma^2)~\forall~i$
+
+If the model follows the first $5$ assumptions, it is known as *classical linear regression model*. If the $6^{th}$ assumption also holds, it becomes the *classical normal linear regression model*. You can read about the assumptions in more detail in *William H. Greene, Econometric Analysis, 2018 (pp. 16-27)*.
+#>
 
 What do you think the parameters represent? Answer the quizzes below.
 
 
 ***
 
-
-Quiz: In the equation $\hat{choice\_keep\_church} = \hat\beta_0 + \hat\beta_1 ~  Tinsurance$, what can you say about the coefficient $\hat{\beta_1}$? You can select multiple options.
-
-[1]: It can only take positive values.
-[2]: It shows the expected change in response variable choice_keep_church due to one unit increase in the explanatory variable Tinsurance.
-[3]: It can never be 0.
-[4]: None of the above.
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("beta 1 quiz")
-```
+#< quiz "beta 1 quiz"
+question: In the equation $\hat{choice\_keep\_church} = \hat\beta_0 + \hat\beta_1 ~  Tinsurance$, what can you say about the coefficient $\hat{\beta_1}$? You can select multiple options.
+mc:
+- It can only take positive values.
+- It shows the expected change in response variable choice_keep_church due to one unit increase in the explanatory variable Tinsurance.*
+- It can never be 0.
+- None of the above.
+success: Great job! The coefficient $\hat{\beta_1}$ in the equation $\hat{y} = \hat{\beta_0} + \hat{\beta_1}\hat{x}$ indicates the expected change in response variable due to one unit increase in the explanatory variable. It can be positive, negative, or 0. A positive (negative) coefficient implies that for every increase in explanatory variable, the response variable increases (decreases) by the $\hat{\beta_1}$ value. Coefficient of 0 implies that the explanatory variable has no effect on the response variable.
+failure: Try again.
+#>
 
 ***
 
-
-Quiz: The coefficient $\hat{\beta_0}$ in the equation $\hat{choice\_keep\_church} = \hat\beta_0 + \hat\beta_1 ~  Tinsurance$ indicates the expected proportion of endowment given to church when $Tinsurance$ is 0.
-
-[1]: True.
-[2]: False.
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("beta 0 quiz")
-```
+#< quiz "beta 0 quiz"
+question: The coefficient $\hat{\beta_0}$ in the equation $\hat{choice\_keep\_church} = \hat\beta_0 + \hat\beta_1 ~  Tinsurance$ indicates the expected proportion of endowment given to church when $Tinsurance$ is 0.
+sc:
+- True.*
+- False.
+success: Correct! The coefficient $\hat{\beta_0}$ in the equation $\hat{y} = \hat{\beta_0} + \hat{\beta_1}\hat{x}$ indicates the expected response when all the explanatory variables are 0. But remember, interpreting the intercept this way might not always make sense. For example, if we are interested in checking the effect of number of hours studied on marks obtained and get a negative intercept on running the regression, it does not make sense to say that the marks will be negative if a student studies for 0 hours!
+failure: Try again.
+#>
 
 ***
 
@@ -1060,20 +1437,31 @@ In R, we can fit a **l**inear **m**odel using the `lm()` command. The parameter 
 
 **Exercise:** Go through the below code and run it.
 
-```{r "7_3"}
+```{r "ols_church"}
+#< task
 # Fit a linear model on data 'df_norevival_1' with 'choice_keep_church' as the dependent variable and 'Tinsurance' as the independent variable to estimate the effect of treatment Insurance on proportion of endowment given to church
 ols_church <- lm(choice_keep_church ~ Tinsurance, data = df_norevival_1)
+#>
 ```
 
 Now let's take a look at the summary of the results.
 
 **Exercise:** Call the command `summary()` on `ols_church`.
 
-```{r "7_4"}
+```{r "summary ols_church"}
+#< task
 #  Call summary() on ols_church
 # Enter you code below:
+#>
+summary(ols_church)
+#< hint
+display("Just put ols_church (without quotes) inside the brackets of command summary()")
+#>
 ```
 
+#< award "Here's a dollar for you!"
+Well, not a *real* dollar, but a useful one nonetheless! The dollar sign in R `$` can be used for specifying a column in a dataframe. For example, `dat_2$gender` will return all the values of the variable `gender` of the dataframe `dat_2`. You can also use it inside of functions. For example, if you want to get the summary of a specific column, say `tmonthlyincome` from the dataset `dat_2`, just call `summary(dat_2$tmonthlyincome)`.
+#>
 
 Let's interpret the results.
 
@@ -1112,9 +1500,16 @@ We will now fit a linear model on the dataset `df_norevival_1` to estimate the e
 
 **Exercise:** Fit a linear model using the `lm()` command on the dataset `df_norevival_1` to estimate the effect of treatment Insurance (`Tinsurance`) on the proportion of endowment given to Thanksgiving prayer event (`choice_keep_thanks`). Store the results in `ols_thanks`.
 
-```{r "7_5"}
+```{r "ols_thanks"}
+#< task
 # Fit a linear model on data 'df_norevival_1' to estimate the effect of treatment Insurance (variable `Tinsurance`) on the proportion of endowment given to Thanksgiving prayer event (variable `choice_keep_thanks`). Store the results in 'ols_thanks'.
 # Enter your code below:
+#>
+ols_thanks <- lm(choice_keep_thanks ~ Tinsurance, data = df_norevival_1)
+#< hint
+display("ols_thanks <- lm(??? ~ ???, data = df_norevival_1)",
+        "Replace the first ??? with the dependent variable (without quotes), and the second ??? with the independent variable (again without quotes).", sep = "\n")
+#>
 ```
 
 
@@ -1122,21 +1517,30 @@ Before we look at the results, we will first run another model to estimate the e
 
 **Exercise:** Fit a linear model on the dataset `df_norevival_1` to estimate the effect of treatment Insurance (`Tinsurance`) on the proportion of endowment given to Street Children's Fund (`choice_keep_street`). Store the results in `ols_street`.
 
-```{r "7_6"}
+```{r "ols_street"}
+#< task
 # Fit a linear model on the dataset `df_norevival_1` to estimate the effect of treatment Insurance (variable `Tinsurance`) on the proportion of endowment given to Street Children's Fund (variable `choice_keep_street`). Store the results in `ols_street`
 # Enter your code below:
+#>
+ols_street <- lm(choice_keep_street ~ Tinsurance, data = df_norevival_1)
+#< hint
+display("ols_street <- lm(??? ~ ???, data = df_norevival_1)",
+        "Replace the first ??? with the dependent variable (without quotes), and the second ??? with the independent variable (again without quotes).", sep = "\n")
+#>
 ```
 
 Now let's look at the results. But this time, instead of using `summary()`, we will use the command `stargazer()` from the `stargazer` package. The `stargazer()` function makes an elegant summary table for the regression results and it also allows us to compare and interpret more than one regression result at the same time. So let's have a look at the results of the above three models together.
 
 **Exercise:** Run the code below.
 
-```{r "7_7",results='asis'}
+```{r results='asis'}
+#< task
 # Load the library stargazer
 library(stargazer)
 
 # Combining the ols results ols_church, ols_thanks, and ols_street using stargazer()
 stargazer(ols_church, ols_thanks, ols_street, type = "html")
+#>
 ```
 
 $~$
@@ -1169,33 +1573,56 @@ Before we begin we need to load the dataset again.
 
 **Exercise:** Load the dataset `data_norevival_1.csv` and store it in `data_1`
 
-```{r "8_1"}
+```{r}
+#< task
 # Load data_norevival_1.csv and store it in data_1
+
+#>
+data_1 <- read.csv("data_norevival_1.csv")
 
 ```
 
 We will be controlling for the socio-demographics of participants (gender, age, ethnicity, high school education, employment status, monthly income), level of religiosity (daily visit to church, praying multiple times a day), the church of the participant, and the wave in which the participant took part in. You can check the info box below if you want to recall what these variables contain.   
 
 
-```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("Variable definitions")
-```
+#< info "Variable definitions"
+
+* `age` - Age of the participant.  
+
+* `gender` - Gender of the participant.  
+
+* `ethnicity` - Ethnicity of the participant. Possible values: Akan, Ewe, Ga Adangbe.  
+
+* `higheducation` - '1' if participant had high school education, '0' otherwise.  
+
+* `employed` - Employment status of the participant. '1' if participant was employed when the experiment took place, '0' if not.  
+
+* `tmonthlyincome` - Monthly income of the participant when the experiment took place.  
+
+* `church_daily` - '1' if participant goes to church daily, '0' if not.   
+
+* `pray_multiple` - '1' if participant prays multiple times a day, '0' if not.  
+
+* `church_name_raw` - The name of the church of the participant.  
+
+* `church_name_grouped` - `church_name_raw` was grouped into 12 groups.  
+
+* `wave` - The experiment was conducted in two waves; the first wave was done in Nov-Dec 2016 and the second wave was done in May-June 2019.
+
+#>
 
 Before we fit the model, we need to convert our categorical variables to dummy variables. Dummy variables are dichotomous variables with value 1 if the attribute is present, and 0 otherwise. Using dummy variables is helpful as they allow us to use a single regression equation to represent multiple groups. For a categorical variable with $n$ levels, we need to create $n-1$ dummy variables lest you fall into the dummy variable trap! 
 
 ***
 
-
-Quiz: Suppose we have a variable "Season" with 4 possible values - winter, spring, summer, and autumn. We created dummy variables called Winter, Spring, and Summer, which take the value 1 when that is the season. But how do we know when it is autumn?
-
-[1]: When the dummy variables winter, spring, and summer take the value 0, it represents autumn.
-[2]: We can't know for sure.
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("dummy variable quiz")
-```
+#< quiz "dummy variable quiz"
+question: Suppose we have a variable "Season" with 4 possible values - winter, spring, summer, and autumn. We created dummy variables called Winter, Spring, and Summer, which take the value 1 when that is the season. But how do we know when it is autumn?
+sc:
+- When the dummy variables winter, spring, and summer take the value 0, it represents autumn.*
+- We can't know for sure.
+success: Good, you are right! We only need to create $n-1$ dummy variables for a categorical variable with $n$ levels as the $n^{th}$ dummy variable can be explained as a linear combination of the other dummy variables.
+failure: Try again.
+#>
 
 ***
 
@@ -1203,11 +1630,16 @@ In the dataset we already have 10 dummy variables for the variable `church_name_
 
 **Exercise:** Replace ___ with the appropriate `dplyr` command to create variables `gender_fem_dummy` and `wave_2_dummy` in the dataset `data_1` and store it in `data_2`.
 
-```{r "8_2"}
-# Creating a dummy variable for gender and wave
+```{r}
+#< fill_in
+# # Creating a dummy variable for gender and wave
+# data_2 <- data_1 %>% 
+#   ___(gender_fem_dummy = ifelse(gender == "Male", 0, 1),
+#       wave_2_dummy = ifelse(wave == 1, 0, 1))
+#>
 data_2 <- data_1 %>% 
-  ___(gender_fem_dummy = ifelse(gender == "Male", 0, 1),
-      wave_2_dummy = ifelse(wave == 1, 0, 1))
+  mutate(gender_fem_dummy = ifelse(gender == "Male", 0, 1),
+         wave_2_dummy = ifelse(wave == 1, 0, 1))
 ```
 
 
@@ -1215,7 +1647,8 @@ Let us now run a linear regression model with independent variable `Tinsurance` 
 
 **Exercise:** Run the code below.
 
-```{r "8_3"}
+```{r}
+#< task
 # OLS model with control variables to estimate the effect of treatment Insurance 
 # on proportion of endowment given to church
 ols_church_cv <- lm(choice_keep_church ~ Tinsurance + age + gender_fem_dummy + 
@@ -1225,19 +1658,20 @@ ols_church_cv <- lm(choice_keep_church ~ Tinsurance + age + gender_fem_dummy +
                       Dchurch3 + Dchurch4 + Dchurch5 + Dchurch6 + Dchurch7 +
                       Dchurch8 + Dchurch9 + Dchurch10 + wave_2_dummy,
                     data = data_2)
+#>
 ```
 
 We will see the results shortly. Let's run another OLS model with the same control variables to estimate the effect of Insurance treatment on the proportion of endowment given to Street Children's Fund. But that's a lot of control variables to type each time.. Well, instead of typing all the variable names every time, we can also store the names in a character vector, and then call this vector whenever we want to use those variables. So, let's store the response variable in `dep_var`, independent variable in `ind_var`, and the control variables in `control_vars`. Then we will use the commands `paste()` and `as.formula()` to get it as a formula. 
 
-```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("paste()")
-```
+#< info "paste()"
+`paste()` in R is used for concatenating vectors or strings. The argument `sep = " "` takes a character string to separate the terms. The default is a space. A character string to separate the results can be specified in the argument `collapse`.
+#>
 
 
 **Exercise:** Go through the below code and run it.
 
-```{r "8_4"}
+```{r}
+#< task
 dep_var <- "choice_keep_street"
 
 ind_var <- "Tinsurance"
@@ -1249,19 +1683,28 @@ control_vars <- c("age", "gender_fem_dummy", "higheducation", "employed", "log_t
 
 ols_street_cv <- lm(as.formula(paste(dep_var, "~", ind_var, "+", paste(control_vars, collapse = "+"))),
                     data = data_2)
+#>
 ```
 
 Let's run another model before looking at the results. This time run an OLS model on the dataset `data_2` with the same control variables to estimate the effect of Insurance treatment on the proportion of endowment given to Thanksgiving Prayer Event.  
 
 **Exercise:** Run a linear regression model on the data `data_2` to estimate the effect of Insurance treatment on the proportion of endowment given to Thanksgiving Prayer event. To do so, first store the dependent variable as a string in variable `dep_var`. Then replace the ___ with the appropriate commands to run the OLS model with the same control variables as before.
 
-```{r "8_5"}
+```{r}
+#< task
 # Store the correct dependent variable in dep_var to estimate the effect of Insurance treatment on the proportion of endowment given to Thanksgiving Prayer event
 # Enter the code below:
 
-# Replace the ___ with appropriate commands to run a linear model with control variables to estimate the effect of treatment Insurance on proportion of endowment given to Thanksgiving prayer event
-ols_thanks_cv <- ___(as.formula(___(dep_var, "~", ind_var, "+", paste(control_vars, collapse = "+"))),
-                    data = ___)
+#>
+dep_var <- "choice_keep_thanks"
+
+#< fill_in
+# # Replace the ___ with appropriate commands to run a linear model with control variables to estimate the effect of treatment Insurance on proportion of endowment given to Thanksgiving prayer event
+# ols_thanks_cv <- ___(as.formula(___(dep_var, "~", ind_var, "+", paste(control_vars, collapse = "+"))),
+#                     data = ___)
+#>
+ols_thanks_cv <- lm(as.formula(paste(dep_var, "~", ind_var, "+", paste(control_vars, collapse = "+"))),
+                    data = data_2)
 ```
 
 Let us now see the results of the above three OLS models with control variables along with the OLS results without control variables from section 4.1. We will again use `stargazer()` function from the `stargazer` package for this. As we are mainly interested in the effect of the treatment on the response variable, we will exclude the coefficients of control variables from the stargazer results by using the argument `omit=control_vars`.  
@@ -1269,7 +1712,8 @@ Let us now see the results of the above three OLS models with control variables 
 
 **Exercise:** Run the code below.
 
-```{r "8_6",results='asis'}
+```{r results='asis'}
+#< task
 
 # OLS models without control variables
 ols_church <- lm(choice_keep_church ~ Tinsurance, data = data_2)
@@ -1282,6 +1726,7 @@ stargazer(ols_church, ols_church_cv, ols_street, ols_street_cv, ols_thanks, ols_
           dep.var.labels.include = FALSE,
           column.labels = c("Giving to church","Giving to street","Giving to thanksgiving"),
           column.separate = c(2,2,2), omit.stat=c("f", "ser"))
+#>
 ```
 
 The odd numbers (1), (3), (5) correspond to the OLS results without control variables, and the even numbers (2), (4), (6) correspond to the OLS results with control variables. We can see that 'Tinsurance' has a negative coefficient in all the cases, and all the effects are significant. This means that enrollment in Insurance *reduces* giving to church and other recipients. Further, compared to the OLS models without control variables, the OLS models with control variables have a higher R-squared. The R-squared shows the goodness-of-fit of the model - it indicates how much variability of the response variable is explained by the independent variables.  
@@ -1297,18 +1742,48 @@ In the previous sections we looked at linear regression using OLS to understand 
 
 **Exercise:** Load the dataset `data_2.csv` and store it in `data_2`.
 
-```{r "9_1"}
+```{r}
+#< task
 # Load data_2.csv and store it in data_2
 
+#>
+data_2 <- read.csv("data_2.csv")
 ```
 
 
 Recall that in section 3.3 we had plotted the frequency plot for the variables `choice_keep_church`, `choice_keep_street`, and `choice_keep_thanks`. Let us have a look at it again.
 
-```{r eval=FALSE}
-# Run for additional info in the Viewer pane
-info("preknit_JGwxvwTDMWnC")
+#< preknit "plot"
+```{r dev='svg', echo=FALSE}
+# Arrange the three plots using grid.arrange
+grid.arrange(
+  # results of Self vs. Church
+  ggplot(df_norevival) +
+    geom_histogram(aes(1-choice_keep_church), binwidth = 0.08,
+                   fill="turquoise4",colour = "black") +
+    ggtitle("Self v.s. Church") + xlab("") + ylab("") +
+    theme(panel.background = element_rect("ivory"),
+          panel.grid = element_line("grey")),
+
+  # results of Self vs. Street Children's Fund
+  ggplot(df_norevival) +
+    geom_histogram(aes(1-choice_keep_street), binwidth = 0.08,
+                   fill="turquoise4",colour = "black") +
+    ggtitle("Self v.s. Street Children") + xlab("") + ylab("") +
+    theme(panel.background = element_rect("ivory"),
+          panel.grid = element_line("grey")),
+
+  # results of Self vs. Thanksgiving prayer event
+  ggplot(df_norevival) +
+    geom_histogram(aes(1-choice_keep_thanks), binwidth = 0.08,
+                   fill="turquoise4",colour = "black") +
+    ggtitle("Self v.s. Thanksgiving") +
+    xlab("Proportion of Endowment Kept with Self") + ylab("") +
+    theme(panel.background = element_rect("ivory"),
+          panel.grid = element_line("grey"))
+  )
 ```
+#>
 
 Observe that for all three variables there is a frequency spike at 0 and 1, i.e. there is a clustering of the participants at the extreme ends 0 (keeping the entire endowment for themselves) and 1 (giving the entire endowment away). This indicates that had it been possible to give less than 0 (i.e. *take* money from the recipient instead of giving it), or give more than the entire endowment, some of the participants clustered at the two bounds 0 and 1 would have probably done so. However, since this is not possible as proportion cannot be below 0 or greater than 1, we can say that the *real value* of the proportion of endowment given to church is *not observable* for these cases and the data is *censored* at 0 and 1 (*(left-)censored from below* at 0 and *(right-)censored from above* at 1).
 So a censored variable is one where the *real* value of the response variable is *not observable* for all the observations because the values reported can only be within a restricted range.
@@ -1350,7 +1825,8 @@ We will again start with estimating how the treatment Insurance Enrollment affec
 
 **Exercise:** Go through the below code and run it.
 
-```{r "9_3"}
+```{r}
+#< task
 # Load the package AER
 library(AER)
 
@@ -1374,6 +1850,7 @@ tobit_church_cv <- tobit(as.formula(paste(dep_var, "~", ind_var, "+", paste(cont
 
 # Call the summary() function on tobit_1
 summary(tobit_church_cv)
+#>
 ```
 
 Notice that 34 observations were not deleted before running the model due to missing information. Out of the remaining 504, 22 were left-censored i.e. 22 observations had gave nothing to the church (`choice_keep_church` = 0), and 38 were right-censored i.e. 38 gave everything to the church (`choice_keep_church` = 1). Since we are interested in the effect of insurance on the proportion of endowment given to church, we will focus only on the coefficient of Tinsurance which is -0.0557. The negative sign indicates that enrollment into insurance **reduces** giving to church, and the value indicates by how much. So according to the Tobit model, enrollment into insurance, as compared to only receiving information about insurance, reduces giving to church by 5.6%. Looking at the p-value we can see that this is significant at 5% level.
@@ -1383,28 +1860,49 @@ Now let's run a Tobit model to estimate the effect of Insurance treatment on the
 
 **Exercise:** Run a Tobit model on the data `data_2` to estimate the effect of Insurance treatment on the proportion of endowment given to Street Children's Fund. To do so, first store the dependent variable as a string in variable `dep_var`. Then replace the ___ with the appropriate commands to run the Tobit model.
 
-```{r "9_4"}
+```{r}
+#< task
 # Store the correct dependent variable as a string in `dep_var`
 
-# Replace ___ with approporiate commands to run a Tobit regression model with control variables on the dataset data_2 to estimate the effect of Insurance treatment on proportion of endowment given to Street Children's Fund. Use the appropriate left and right censoring.
-tobit_street_cv <- ___(as.formula(paste(dep_var, "~", ind_var, "+", paste(control_vars, collapse = "+"))),
-                         left = ___,
-                         right = ___,
-                         data = ___)
+#>
+dep_var <- "choice_keep_street"
+
+
+#< fill_in
+# # Replace ___ with approporiate commands to run a Tobit regression model with control variables on the dataset data_2 to estimate the effect of Insurance treatment on proportion of endowment given to Street Children's Fund. Use the appropriate left and right censoring.
+# tobit_street_cv <- ___(as.formula(paste(dep_var, "~", ind_var, "+", paste(control_vars, collapse = "+"))),
+#                          left = ___,
+#                          right = ___,
+#                          data = ___)
+#>
+tobit_street_cv <- tobit(as.formula(paste(dep_var, "~", ind_var, "+", paste(control_vars, collapse = "+"))),
+                         left = 0,
+                         right = 1,
+                         data = data_2)
 ```
 
 Great! We will see the results of this shortly. First, run another tobit model on the dataset `data_2` to estimate the effect of Insurance treatment on the proportion of endowment given to Thanksgiving Prayer Event.  
 
 **Exercise:** Run a Tobit model on the data `data_2` to estimate the effect of Insurance treatment on the proportion of endowment given to Thanksgiving Prayer event. To do so, first store the dependent variable as a string in variable `dep_var`. Then replace the ___ with the appropriate commands to run the Tobit model.
 
-```{r "9_5"}
+```{r}
+#< task
 # Store the correct dependent variable as a string in `dep_var`
 
-# Replace ___ with approporiate commands to run a Tobit regression model with control variables on the dataset data_2 to estimate the effect of Insurance treatment on proportion of endowment given to Thanksgiving prayer event. Use the appropriate left and right censoring.
-tobit_thanks_cv <- ___(___(paste(dep_var, "~", ind_var, "+", paste(control_vars, collapse = "+"))),
-                         left = ___,
-                         right = ___,
-                         data = ___)
+#>
+dep_var <- "choice_keep_thanks"
+
+#< fill_in
+# # Replace ___ with approporiate commands to run a Tobit regression model with control variables on the dataset data_2 to estimate the effect of Insurance treatment on proportion of endowment given to Thanksgiving prayer event. Use the appropriate left and right censoring.
+# tobit_thanks_cv <- ___(___(paste(dep_var, "~", ind_var, "+", paste(control_vars, collapse = "+"))),
+#                          left = ___,
+#                          right = ___,
+#                          data = ___)
+#>
+tobit_thanks_cv <- tobit(as.formula(paste(dep_var, "~", ind_var, "+", paste(control_vars, collapse = "+"))),
+                         left = 0,
+                         right = 1,
+                         data = data_2)
 ```
 
 
@@ -1412,7 +1910,8 @@ Now let's have a look at the results of the above three Tobit models along with 
 
 **Exercise:** Run the code below.
 
-```{r "9_6",results='asis'}
+```{r results='asis'}
+#< task
 # OLS results with control variables 
 ind_var <- "Tinsurance"
 control_vars <- c("age", "gender_fem_dummy", "higheducation", "employed", "log_tmonthlyincome",
@@ -1437,6 +1936,7 @@ stargazer(ols_church_cv, tobit_church_cv, ols_street_cv,
           model.names = FALSE, dep.var.labels.include = FALSE,
           column.labels = c("Giving to church","Giving to street","Giving to thanksgiving"),
           column.separate = c(2,2,2), omit.stat=c("f", "ser","wald"))
+#>
 ```
 
 $~$
@@ -1445,28 +1945,30 @@ The odd numbers (1), (3), and (5) correspond to the OLS models and the even numb
 
 ***
 
-
-Quiz: Which of the following is correct?
-
-[1]: According to the Tobit model, enrollment into insurance (as compared to only information about insurance) increases giving to street children's fund by 6.9%.
-[2]: According to the Tobit model, enrollment into insurance (as compared to only information about insurance) reduces giving to street children's fund by 6.9%.
-[3]: Enrollment into Insurance decreases giving to church, street children's fund and thanksgiving event.
-[4]: Enrollment into insurance increases giving to church, street children's fund and thanksgiving event.
-
-```{r eval=FALSE}
-# Run line to answer the quiz above
-answer.quiz("tobit results")
-```
+#< quiz "tobit results"
+question: Which of the following is correct?
+mc:
+- According to the Tobit model, enrollment into insurance (as compared to only information about insurance) increases giving to street children's fund by 6.9%.
+- According to the Tobit model, enrollment into insurance (as compared to only information about insurance) reduces giving to street children's fund by 6.9%.*
+- Enrollment into Insurance decreases giving to church, street children's fund and thanksgiving event.*
+- Enrollment into insurance increases giving to church, street children's fund and thanksgiving event.
+success: Great, you correctly interpreted the results!
+failure: Try again.
+#>
 
 ***
 
 (questions - preknit before stargazer results, embedding google form, plotly plot not interactive, skimr no space in output)
 
+#< award "You did it!"
+Hurrah! You made it till the end! I hope you had fun learning and solving this problem set. As the final award [here][linkRTutor] you can find how you can create your own problem set along with some more interactive sets made by other students of Ulm University. Who said learning can't be fun? ;)
+[linkRTutor]: https://skranz.github.io/RTutor/ 
+#>
 
 $~$
 
 
-## Exercise 5 Conclusion
+## Exercise 6 Conclusion
 
 Congratulations! You are now at the end of the problem set. Let's recap what you've done so far and the conclusions that we can draw from it.
 
@@ -1484,7 +1986,7 @@ Hence looking at the experiment results we can conclude that in such religious s
 ***
 
 
-## Exercise 6 References
+## Exercise 7 References
 
 ### Bibliography
 

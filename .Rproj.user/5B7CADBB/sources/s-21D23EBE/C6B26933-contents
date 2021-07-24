@@ -1,25 +1,10 @@
-## 1. Installation
+ps.name = "God Insures Those Who Pay" # problem set name
+  libs = c("AER","stargazer","gridExtra","webshot","plotly","skimr","ggplot2","dplyr") # list of all libraries used by ps
+  # Folder that contains your .rps file
+  rps.dir = "C:/Users/Aditi ^_^/Desktop/Thesis/ProblemSet"
+  # Folder in which app shall be created
+  app.dir = "C:/Users/Aditi ^_^/Desktop"
+rtutor.app.skel(ps.name=ps.name, app.name="RTutorGodInsuresThoseWhoPay",
+                app.dir=app.dir, rps.dir = rps.dir,
+                rps.app = TRUE, libs=libs,overwrite=TRUE)
 
-RTutor and this package is hosted on Github. To install everything, run the following code in your R console.
-
-```s
-install.packages("RTutor",repos = c("https://skranz-repo.github.io/drat/",getOption("repos")))
-
-if (!require(devtools))
-  install.packages("devtools")
-
-devtools::install_github("aditi-malani/RTutorGodInsuresThoseWhoPay")
-```
-
-## 2. Show and work on the problem set
-To start the problem set first create a working directory in which files like the data sets and your solution will be stored. Then adapt and run the following code.
-```s
-library(RTutorGodInsuresThoseWhoPay)
-
-# Adapt your working directory to an existing folder
-setwd("C:/Desktop")
-# Adapt your user name
-run.ps(user.name="Aditi", package="RTutorGodInsuresThoseWhoPay",
-       auto.save.code=TRUE, clear.user=FALSE)
-```
-If everything works fine, a browser window should open, in which you can start exploring the problem set.
