@@ -1460,8 +1460,6 @@ answer.quiz("tobit results")
 
 ***
 
-(questions - preknit before stargazer results, embedding google form, plotly plot not interactive, skimr no space in output)
-
 
 $~$
 
